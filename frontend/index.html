@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="claro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockMaster | Sistema de Estoque</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="app.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="brand">
+                <h2><i class="fa-solid fa-boxes-packing"></i> StockMaster</h2>
+            </div>
+            <nav id="menu-navegacao">
+                <button class="nav-btn active" data-tab="dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
+                <button class="nav-btn" data-tab="cadastro"><i class="fa-solid fa-plus"></i> Novo Produto</button>
+                <button class="nav-btn" data-tab="estoque"><i class="fa-solid fa-warehouse"></i> Estoque</button>
+                <button class="nav-btn" data-tab="movimentacoes"><i class="fa-solid fa-right-left"></i> Movimentações</button>
+                <button class="nav-btn" data-tab="historico"><i class="fa-solid fa-clock-rotate-left"></i> Histórico</button>
+                <button class="nav-btn" data-tab="configuracoes"><i class="fa-solid fa-gear"></i> Configurações</button>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div id="toast" class="toast hidden"></div>
+
+            <section id="tab-dashboard" class="tab-content active">
+                <div class="metrics-grid">
+                    <div class="metric-card card-blue">
+                        <i class="fa-solid fa-box icon-blue"></i>
+                        <div>
+                            <h4 id="total-produtos">0</h4>
+                            <p>Total de Produtos</p>
+                        </div>
+                    </div>
+                    <div class="metric-card card-green">
+                        <i class="fa-solid fa-coins icon-green"></i>
+                        <div>
+                            <h4 id="valor-total">R$ 0,00</h4>
+                            <p>Valor em Estoque</p>
+                        </div>
+                    </div>
+                    <div class="metric-card card-red">
+                        <i class="fa-solid fa-triangle-exclamation icon-red"></i>
+                        <div>
+                            <h4 id="itens-alerta">0</h4>
+                            <p>Itens em Alerta</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-cadastro" class="tab-content">
+                <div class="card">
+                    <h3><i class="fa-solid fa-pen-to-square"></i> Cadastrar Novo Produto</h3>
+                    <form id="form-cadastro">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cad-nome">Nome do Produto</label>
+                                <input type="text" id="cad-nome" placeholder="Ex: Arroz Integral 5kg" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="cad-codigo">Código identificador</label>
+                                <input type="text" id="cad-codigo" placeholder="Ex: XXXXX-001" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cad-categoria">Categoria</label>
+                                <select id="cad-categoria" class="form-select" required>
+                                    <option value="" disabled selected>Selecione...</option>
+                                    <option value="bebidas">Bebidas</option>
+                                    <option value="alimentos">Alimentos</option>
+                                    <option value="limpeza">Limpeza</option>
+                                    <option value="higiene">Higiene</option>
+                                    <option value="padaria">Padaria</option>
+                                    <option value="hortifruti">Hortifruti</option>
+                                    <option value="frios">Frios</option>
+                                    <option value="congelados">Congelados</option>
+                                    <option value="doces">Doces</option>
+                                    <option value="outros">Outros</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="cad-preco">Preço Unitário (R$)</label>
+                                <input type="number" id="cad-preco" step="0.01" min="0" placeholder="Ex: 10,00" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cad-qtd">Quantidade Inicial</label>
+                                <input type="number" id="cad-qtd" min="0" placeholder="Ex: 15" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="cad-minimo">Estoque Mínimo (Alerta)</label>
+                                <input type="number" id="cad-minimo" min="0" placeholder="Ex: 5" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary">Adicionar ao Inventário</button>
+                    </form>
+                </div>
+            </section>
+
+            <section id="tab-estoque" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-list-check"></i> Controle de Inventário</h3>
+                        <div class="filter-bar">
+                            <div class="search-box">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="busca-estoque" placeholder="Buscar por nome ou código...">
+                            </div>
+                            <select id="filtro-categoria" class="form-select select-compact">
+                                <option value="todos">Todas Categorias</option>
+                                <option value="bebidas">Bebidas</option>
+                                <option value="alimentos">Alimentos</option>
+                                <option value="limpeza">Limpeza</option>
+                                <option value="higiene">Higiene</option>
+                                <option value="padaria">Padaria</option>
+                                <option value="hortifruti">Hortifruti</option>
+                                <option value="frios">Frios</option>
+                                <option value="congelados">Congelados</option>
+                                <option value="doces">Doces</option>
+                                <option value="outros">Outros</option>
+                            </select>
+                            <select id="ordenar-estoque" class="form-select select-compact">
+                                <option value="nome-asc">Nome (A-Z)</option>
+                                <option value="nome-desc">Nome (Z-A)</option>
+                                <option value="qtd-asc">Menor Estoque</option>
+                                <option value="qtd-desc">Maior Estoque</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Código</th>
+                                    <th>Categoria</th>
+                                    <th>Quantidade</th>
+                                    <th>Mínimo</th>
+                                    <th>Preço</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lista-estoque-corpo">
+                                <tr>
+                                    <td colspan="8" class="table-empty">Nenhum produto registrado no momento.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination">
+                        <button class="btn-pagination" disabled><i class="fa-solid fa-chevron-left"></i> Anterior</button>
+                        <span class="pagination-info">Página 1 de 1</span>
+                        <button class="btn-pagination" disabled>Próximo <i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-movimentacoes" class="tab-content">
+                <div class="card">
+                    <h3><i class="fa-solid fa-circle-arrow-down"></i> Lançar Movimentação de Estoque</h3>
+                    <form id="form-movimentacao">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="mov-tipo">Tipo de Transação</label>
+                                <select id="mov-tipo" class="form-select" required>
+                                    <option value="" disabled selected>Selecione...</option>
+                                    <option value="entrada">Entrada (+)</option>
+                                    <option value="saida">Saída (-)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="mov-produto">Produto</label>
+                                <select id="mov-produto" class="form-select" required>
+                                    <option value="" disabled selected>Selecione o produto...</option>
+                                    </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="mov-qtd">Quantidade</label>
+                                <input type="number" id="mov-qtd" min="1" placeholder="Ex: 10" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="mov-data">Data do Registro</label>
+                                <input type="date" id="mov-data" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="mov-obs">Observação / Motivo</label>
+                            <input type="text" id="mov-obs" placeholder="Ex: Reposição de estoque / Venda direta ao cliente">
+                        </div>
+                        <button type="submit" class="btn-primary">Registrar Movimentação</button>
+                    </form>
+                </div>
+            </section>
+
+            <section id="tab-historico" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-timeline"></i> Histórico de Atividades</h3>
+                        <div class="filter-bar">
+                            <div class="search-box">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="busca-historico" placeholder="Buscar por produto ou observação...">
+                            </div>
+                            <select id="filtro-historico-tipo" class="form-select select-compact">
+                                <option value="todos">Todos os Tipos</option>
+                                <option value="entrada">Entradas</option>
+                                <option value="saida">Saídas</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Hora</th>
+                                    <th>Produto</th>
+                                    <th>Tipo</th>
+                                    <th>Quantidade</th>
+                                    <th>Observação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lista-historico-corpo">
+                                <tr>
+                                    <td colspan="6" class="table-empty">Nenhuma movimentação registrada até o momento.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-configuracoes" class="tab-content">
+                <div class="card">
+                    <h3><i class="fa-solid fa-palette"></i> Preferências Visuais</h3>
+                    <div class="form-group">
+                        <label for="seletor-tema">Tema do Sistema</label>
+                        <select id="seletor-tema" class="form-select">
+                            <option value="claro">Modo Claro (Padrão)</option>
+                            <option value="escuro">Modo Escuro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 20px;">
+                    <h3><i class="fa-solid fa-database"></i> Manutenção do Banco de Dados</h3>
+                    <p class="config-text-warning">Cuidado! Algumas operações abaixo são irreversíveis e afetam o armazenamento local.</p>
+                    <div class="btn-grid">
+                        <button id="btn-exportar" class="btn-secondary"><i class="fa-solid fa-download"></i> Exportar Dados (JSON)</button>
+                        <button id="btn-importar" class="btn-secondary"><i class="fa-solid fa-upload"></i> Importar Dados (JSON)</button>
+                        <button id="btn-limpar" class="btn-danger"><i class="fa-solid fa-trash-arrow-up"></i> Limpar Banco de Dados</button>
+                        <!-- Input de arquivo oculto: acionado programaticamente pelo botão Importar -->
+                        <input type="file" id="input-importar-arquivo" accept=".json,application/json" style="display: none;">
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
